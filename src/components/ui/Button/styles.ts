@@ -44,7 +44,7 @@ export const styles = StyleSheet.create({
   },
 
   disabled: {
-    opacity: 0.4,
+    backgroundColor: theme.colors.background.disabled,
   },
   fullWidth: {
     width: "100%",

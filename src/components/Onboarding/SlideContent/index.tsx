@@ -41,7 +41,7 @@ export const SlideContent: React.FC<SlideContentProps> = ({
   }, [title, description, opacity, translateY]);
 
   return (
-    <View style={styles.cardContent}>
+    <View>
       <Animated.View
         style={[
           styles.textContent,

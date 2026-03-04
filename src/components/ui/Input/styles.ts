@@ -1,67 +1,102 @@
-import { StyleSheet, TextStyle } from "react-native";
+import { StyleSheet } from "react-native";
 import { theme } from "../../../styles/theme";
+
+const INPUT_HEIGHT = 48;
+const BORDER_RADIUS = 10;
+const LABEL_TOP_PADDING = 8;
+const LABEL_FONT_SIZE = 12;
+const INPUT_TOP_GAP = 8;
 
 export const styles = StyleSheet.create({
   container: {
     marginBottom: theme.spacing[4],
   },
 
-  label: {
-    fontSize: theme.typography.fontSizes.sm,
-    fontWeight: theme.typography.fontWeights.medium as TextStyle["fontWeight"],
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[2],
+  inputWrapper: {
+    position: "relative",
+    minHeight: INPUT_HEIGHT,
+    justifyContent: "center",
+    borderWidth: 0,
+    borderRadius: BORDER_RADIUS,
+    backgroundColor: theme.colors.background.primary,
   },
 
-  inputContainer: {
-    position: "relative",
+  inputWrapperFocused: {
+    borderWidth: 1,
+    borderColor: "#BBBBBB",
+  },
+
+  inputWrapperError: {
+    borderColor: theme.colors.error,
+  },
+
+  inner: {
     flexDirection: "row",
     alignItems: "center",
+    minHeight: INPUT_HEIGHT,
+    paddingHorizontal: theme.spacing[4],
+    paddingTop: LABEL_TOP_PADDING + LABEL_FONT_SIZE + INPUT_TOP_GAP,
+    paddingBottom: theme.spacing[2],
+  },
+
+  innerWithLeftIcon: {
+    paddingLeft: theme.spacing[10],
+  },
+
+  innerWithRightIcon: {
+    paddingRight: theme.spacing[10],
+  },
+
+  labelPlaceholder: {
+    position: "absolute",
+    left: theme.spacing[4],
+    right: theme.spacing[4],
+    top: 0,
+    bottom: 0,
+    justifyContent: "center",
+    paddingTop: 0,
+  },
+
+  labelFloating: {
+    position: "absolute",
+    left: theme.spacing[4],
+    top: LABEL_TOP_PADDING,
+  },
+
+  labelText: {
+    fontSize: LABEL_FONT_SIZE,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.text.tertiary,
   },
 
   input: {
     flex: 1,
-    height: theme.sizes.inputHeight,
-    borderWidth: 1,
-    borderColor: theme.colors.border.light,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing[4],
+    padding: 0,
+    margin: 0,
     fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.medium,
     color: theme.colors.text.primary,
-    backgroundColor: theme.colors.background.primary,
-  },
-
-  inputFocused: {
-    borderColor: theme.colors.primary[500],
-    ...theme.shadows.sm,
-  },
-
-  inputError: {
-    borderColor: theme.colors.error,
-  },
-
-  inputWithLeftIcon: {
-    paddingLeft: theme.spacing[12],
-  },
-
-  inputWithRightIcon: {
-    paddingRight: theme.spacing[12],
+    minHeight: 20,
   },
 
   leftIcon: {
     position: "absolute",
     left: theme.spacing[3],
+    top: 0,
+    bottom: 0,
     zIndex: 1,
+    justifyContent: "center",
   },
 
   rightIcon: {
     position: "absolute",
     right: theme.spacing[3],
+    top: 0,
+    bottom: 0,
     zIndex: 1,
-  },
-
-  eyeIcon: {
-    fontSize: theme.typography.fontSizes.xl,
+    width: 40,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   errorText: {

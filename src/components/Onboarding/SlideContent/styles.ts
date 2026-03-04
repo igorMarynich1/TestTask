@@ -2,14 +2,13 @@ import { StyleSheet } from "react-native";
 import { theme } from "../../../styles/theme";
 
 export const styles = StyleSheet.create({
-  cardContent: {},
   textContent: {
     alignItems: "center",
     paddingHorizontal: 0,
     marginBottom: theme.spacing[4],
   },
   title: {
-    fontFamily: "Inter",
+    fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSizes["2xl"],
     fontWeight: theme.typography.fontWeights.bold,
     lineHeight: theme.typography.fontSizes["2xl"],
@@ -19,7 +18,7 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing[4],
   },
   description: {
-    fontFamily: "Inter",
+    fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSizes.sm,
     fontWeight: theme.typography.fontWeights.medium,
     lineHeight:

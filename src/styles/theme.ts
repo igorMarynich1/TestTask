@@ -1,4 +1,7 @@
-// Modern Design System Theme
+import type { TextStyle } from "react-native";
+
+type FontWeight = NonNullable<TextStyle["fontWeight"]>;
+
 export const theme = {
   colors: {
     // Primary colors
@@ -50,6 +53,7 @@ export const theme = {
       primary: '#FFFFFF',
       secondary: '#F8FAFC',
       tertiary: '#F1F5F9',
+      disabled: '#BBBBBB', // System-Secondary (e.g. disabled button)
     },
     
     // Text colors
@@ -83,8 +87,9 @@ export const theme = {
     },
   },
   
-  // Typography
   typography: {
+    fontFamily: "Inter" as const,
+
     fontSizes: {
       xs: 12,
       sm: 14,
@@ -93,18 +98,19 @@ export const theme = {
       xl: 20,
       '2xl': 24,
       '3xl': 30,
+      h1: 32,
       '4xl': 36,
       '5xl': 48,
     },
     
     fontWeights: {
-      light: '300',
-      normal: '400',
-      medium: '500',
-      semibold: '600',
-      bold: '700',
-      extrabold: '800',
-    } as const,
+      light: "300" as FontWeight,
+      normal: "400" as FontWeight,
+      medium: "500" as FontWeight,
+      semibold: "600" as FontWeight,
+      bold: "700" as FontWeight,
+      extrabold: "800" as FontWeight,
+    },
     
     lineHeights: {
       tight: 1.2,

@@ -12,32 +12,38 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor for logging
 apiClient.interceptors.request.use(
   (config) => {
-    console.log('API Request:', config.method?.toUpperCase(), config.url);
+    if (__DEV__) {
+      console.log('API Request:', config.method?.toUpperCase(), config.url);
+    }
     return config;
   },
   (error) => {
-    console.error('API Request Error:', error);
+    if (__DEV__) {
+      console.error('API Request Error:', error);
+    }
     return Promise.reject(error);
   }
 );
 
-// Response interceptor for logging and error handling
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('API Response:', response.status, response.config.url);
+    if (__DEV__) {
+      console.log('API Response:', response.status, response.config.url);
+    }
     return response;
   },
   (error) => {
-    console.error('API Response Error:', error.response?.status, error.message);
+    if (__DEV__) {
+      console.error('API Response Error:', error.response?.status, error.message);
+    }
     return Promise.reject(error);
   }
 );
 
-// Use demo mode in development when API may be unavailable
-const useDemoMode = __DEV__;
+const DEMO_MODE_ENABLED = true;
+const useDemoMode = __DEV__ && DEMO_MODE_ENABLED;
 
 export const signUpUser = async (userData: SignUpFormData): Promise<ApiResponse<UserAccountData>> => {
   if (useDemoMode) {
@@ -95,15 +101,14 @@ export const signUpUser = async (userData: SignUpFormData): Promise<ApiResponse<
       console.error('Sign up error:', error);
     }
 
-    const axiosError = error as { response?: { status: number; data?: { message?: string } }; request?: unknown };
-    if (axiosError.response) {
-      const status = axiosError.response.status;
-      const data = axiosError.response.data;
-      
+    if (axios.isAxiosError(error) && error.response) {
+      const { status, data } = error.response;
+      const serverMessage = (data as { message?: string })?.message;
+
       if (status === 400) {
         return {
           success: false,
-          message: data?.message || 'Invalid input. Please check your information.',
+          message: serverMessage || 'Invalid input. Please check your information.',
         };
       } else if (status === 404) {
         return {
@@ -123,17 +128,15 @@ export const signUpUser = async (userData: SignUpFormData): Promise<ApiResponse<
       } else {
         return {
           success: false,
-          message: data?.message || 'Sign up failed. Please try again.',
+          message: serverMessage || 'Sign up failed. Please try again.',
         };
       }
-    } else if (axiosError.request) {
-      // Network error
+    } else if (axios.isAxiosError(error) && error.request) {
       return {
         success: false,
         message: 'Network error. Please check your internet connection.',
       };
     } else {
-      // Other error
       return {
         success: false,
         message: 'An unexpected error occurred. Please try again.',

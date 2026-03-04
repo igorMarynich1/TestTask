@@ -1,47 +1,44 @@
-export const validateName = (name: string): string | null => {
-  if (!name.trim()) {
-    return 'Name is required';
-  }
-  if (name.trim().length < 2) {
-    return 'Name must be at least 2 characters long';
-  }
-  if (name.trim().length > 50) {
-    return 'Name must be less than 50 characters';
-  }
-  return null;
+import { z } from 'zod';
+
+const passwordRefine = (val: string) => {
+  const hasLetter = /[a-zA-Z]/.test(val);
+  const hasNumber = /\d/.test(val);
+  return hasLetter && hasNumber;
 };
 
-export const validateEmail = (email: string): string | null => {
-  if (!email.trim()) {
-    return 'Email is required';
-  }
-  
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.trim())) {
-    return 'Please enter a valid email address';
-  }
-  
-  return null;
-};
+export const signUpSchema = z
+  .object({
+    name: z
+      .string()
+      .refine((s) => s.trim().length > 0, 'Name is required')
+      .transform((s) => s.trim())
+      .pipe(
+        z
+          .string()
+          .min(2, 'Name must be at least 2 characters long')
+          .max(50, 'Name must be less than 50 characters')
+      ),
+    email: z
+      .string()
+      .refine((s) => s.trim().length > 0, 'Email is required')
+      .transform((s) => s.trim())
+      .pipe(z.string().email('Please enter a valid email address')),
+    password: z
+      .string()
+      .min(1, 'Password is required')
+      .min(6, 'Password must be at least 6 characters long')
+      .max(128, 'Password must be less than 128 characters')
+      .refine(passwordRefine, 'Password must contain at least one letter and one number'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+    acceptTerms: z.boolean(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+  .refine((data) => data.acceptTerms === true, {
+    message: 'You must accept the Terms of Service and Privacy Policy',
+    path: ['acceptTerms'],
+  });
 
-export const validatePassword = (password: string): string | null => {
-  if (!password) {
-    return 'Password is required';
-  }
-  if (password.length < 6) {
-    return 'Password must be at least 6 characters long';
-  }
-  if (password.length > 128) {
-    return 'Password must be less than 128 characters';
-  }
-  
-  // Check for at least one letter and one number
-  const hasLetter = /[a-zA-Z]/.test(password);
-  const hasNumber = /\d/.test(password);
-  
-  if (!hasLetter || !hasNumber) {
-    return 'Password must contain at least one letter and one number';
-  }
-  
-  return null;
-};
+export type SignUpSchema = z.infer<typeof signUpSchema>;

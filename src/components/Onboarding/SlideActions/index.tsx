@@ -18,7 +18,6 @@ export const SlideActions: React.FC<SlideActionsProps> = ({
       size="lg"
       fullWidth
       style={styles.nextButton}
-      textStyle={styles.nextButtonText}
     />
   </View>
 );

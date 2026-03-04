@@ -9,5 +9,4 @@ export const styles = StyleSheet.create({
   nextButton: {
     width: "100%",
   },
-  nextButtonText: {},
 });
