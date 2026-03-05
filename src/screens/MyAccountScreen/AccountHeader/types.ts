@@ -1,3 +1,3 @@
 export interface AccountHeaderProps {
-  onLogout: () => void;
+  title?: string;
 }

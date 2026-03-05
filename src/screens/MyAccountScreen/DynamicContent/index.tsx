@@ -1,9 +1,13 @@
-import React, { useMemo } from "react";
-import { View, Text, Pressable } from "react-native";
-import { Card } from "../../../components/ui";
+import React, { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { View, Text, Pressable, Animated } from "react-native";
 import type { UserAccountData } from "../../../types";
+import { theme } from "../../../styles/theme";
 import { styles } from "./styles";
 import type { DynamicContentProps } from "./types";
+
+type ListSection = "features" | "links";
+
+const SLIDE_OFFSET = 12;
 
 const KNOWN_KEYS: (keyof UserAccountData)[] = [
   "name",
@@ -14,25 +18,26 @@ const KNOWN_KEYS: (keyof UserAccountData)[] = [
   "features",
   "links",
   "profile",
+  "createdAt",
+  "lastLogin",
 ];
 
-function SectionCard({
-  icon,
-  title,
-  children,
+function InfoRow({
+  label,
+  value,
+  highlight,
 }: {
-  icon: string;
-  title: string;
-  children: React.ReactNode;
+  label: string;
+  value: string;
+  highlight?: boolean;
 }) {
   return (
-    <Card style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionIcon}>{icon}</Text>
-        <Text style={styles.sectionTitle}>{title}</Text>
-      </View>
-      {children}
-    </Card>
+    <View style={styles.infoRow}>
+      <Text style={styles.infoLabel}>{label}</Text>
+      <Text style={[styles.infoValue, highlight && styles.infoValueHighlight]}>
+        {value}
+      </Text>
+    </View>
   );
 }
 
@@ -40,6 +45,71 @@ export function DynamicContent({
   accountData,
   onLinkPress,
 }: DynamicContentProps) {
+  const hasFeatures =
+    accountData.features && accountData.features.length > 0;
+  const hasLinks =
+    accountData.links && Object.keys(accountData.links).length > 0;
+  const showListCard = hasFeatures || hasLinks;
+  const canSwitch = hasFeatures && hasLinks;
+
+  const [activeSection, setActiveSection] = useState<ListSection>("features");
+
+  const effectiveSection: ListSection = canSwitch
+    ? activeSection
+    : hasFeatures
+      ? "features"
+      : "links";
+
+  const cycleSection = useCallback(() => {
+    if (!canSwitch) return;
+    setActiveSection((prev) => (prev === "features" ? "links" : "features"));
+  }, [canSwitch]);
+
+  const contentOpacity = useRef(new Animated.Value(1)).current;
+  const contentTranslateY = useRef(new Animated.Value(0)).current;
+  const isFirstMount = useRef(true);
+
+  useEffect(() => {
+    if (!showListCard) return;
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+    contentOpacity.setValue(0);
+    contentTranslateY.setValue(SLIDE_OFFSET);
+    Animated.parallel([
+      Animated.timing(contentOpacity, {
+        toValue: 1,
+        duration: theme.animation.normal,
+        useNativeDriver: true,
+      }),
+      Animated.timing(contentTranslateY, {
+        toValue: 0,
+        duration: theme.animation.normal,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [effectiveSection, showListCard, contentOpacity, contentTranslateY]);
+
+  const profileRows = useMemo(() => {
+    const rows: { label: string; value: string; highlight?: boolean }[] = [];
+
+    if (accountData.profile) {
+      const entries = Object.entries(accountData.profile).sort(
+        ([a], [b]) => (a === "Member Since" ? 1 : b === "Member Since" ? -1 : 0)
+      );
+      for (const [key, value] of entries) {
+        rows.push({
+          label: key,
+          value: String(value),
+          highlight: value === "Active" || value === "Verified",
+        });
+      }
+    }
+
+    return rows;
+  }, [accountData]);
+
   const otherData = useMemo(() => {
     const filtered: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(accountData)) {
@@ -50,87 +120,104 @@ export function DynamicContent({
     return Object.keys(filtered).length > 0 ? filtered : null;
   }, [accountData]);
 
-  const hasMinimalData = Object.keys(accountData).length <= 3;
-
   return (
     <View style={styles.wrapper}>
-      {accountData.message ? (
-        <SectionCard icon="💬" title="Welcome Message">
-          <Text style={styles.bodyText}>{accountData.message}</Text>
-        </SectionCard>
+      {profileRows.length > 0 ? (
+        <View style={styles.infoCard}>
+          {profileRows.map((row) => (
+            <InfoRow
+              key={row.label}
+              label={row.label}
+              value={row.value}
+              highlight={row.highlight}
+            />
+          ))}
+        </View>
       ) : null}
 
-      {accountData.instructions ? (
-        <SectionCard icon="📋" title="Getting Started">
-          <Text style={styles.bodyText}>{accountData.instructions}</Text>
-        </SectionCard>
-      ) : null}
-
-      {accountData.features ? (
-        <SectionCard icon="✨" title="Available Features">
-          <View style={styles.featuresGrid}>
-            {accountData.features.map((feature, index) => (
-              <View key={index} style={styles.featureItem}>
-                <Text style={styles.featureBullet}>•</Text>
-                <Text style={styles.featureText}>{feature}</Text>
+      {showListCard ? (
+        <View style={styles.listCard}>
+          <Pressable
+            onPress={cycleSection}
+            style={styles.listHeader}
+            disabled={!canSwitch}
+          >
+            <Text style={styles.listTitle}>
+              {effectiveSection === "features"
+                ? "Available Features"
+                : "Quick Links"}
+            </Text>
+            {canSwitch ? (
+              <View style={styles.listChevronCircle}>
+                <Text style={styles.listChevron}>›</Text>
               </View>
-            ))}
-          </View>
-        </SectionCard>
-      ) : null}
-
-      {accountData.links ? (
-        <SectionCard icon="🔗" title="Quick Links">
-          <View style={styles.linksContainer}>
-            {Object.entries(accountData.links).map(([label, url]) => (
-              <Pressable
-                key={label}
-                style={({ pressed }) => [
-                  styles.linkItem,
-                  pressed && { opacity: 0.7 },
-                ]}
-                onPress={() => onLinkPress(url)}
-              >
-                <Text style={styles.linkText}>{label}</Text>
-                <Text style={styles.linkArrow}>→</Text>
-              </Pressable>
-            ))}
-          </View>
-        </SectionCard>
-      ) : null}
-
-      {accountData.profile ? (
-        <SectionCard icon="👤" title="Profile Information">
-          <View style={styles.profileGrid}>
-            {Object.entries(accountData.profile).map(([key, value]) => (
-              <View key={key} style={styles.profileItem}>
-                <Text style={styles.profileLabel}>
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </Text>
-                <Text style={styles.profileValue}>{String(value)}</Text>
-              </View>
-            ))}
-          </View>
-        </SectionCard>
+            ) : (
+              <View style={styles.listChevronPlaceholder} />
+            )}
+          </Pressable>
+          <Animated.View
+            style={[
+              styles.listCardContent,
+              {
+                opacity: contentOpacity,
+                transform: [{ translateY: contentTranslateY }],
+              },
+            ]}
+          >
+            {effectiveSection === "features" && hasFeatures ? (
+              accountData.features!.map((feature, index) => (
+                <View key={index} style={styles.listItem}>
+                  <View style={styles.listAvatar}>
+                    <Text style={styles.listAvatarText}>
+                      {feature.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View style={styles.listItemBody}>
+                    <Text style={styles.listItemTitle}>{feature}</Text>
+                  </View>
+                </View>
+              ))
+            ) : null}
+            {effectiveSection === "links" && hasLinks
+              ? Object.entries(accountData.links!).map(([label, url]) => (
+                  <Pressable
+                    key={label}
+                    style={({ pressed }) => [
+                      styles.listItem,
+                      pressed && styles.listItemPressed,
+                    ]}
+                    onPress={() => onLinkPress(url)}
+                  >
+                    <View style={styles.listAvatar}>
+                      <Text style={styles.listAvatarText}>
+                        {label.charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                    <View style={styles.listItemBody}>
+                      <Text style={styles.listItemTitle}>{label}</Text>
+                      <Text style={styles.listItemSub} numberOfLines={1}>
+                        {url}
+                      </Text>
+                    </View>
+                  </Pressable>
+                ))
+              : null}
+          </Animated.View>
+        </View>
       ) : null}
 
       {otherData ? (
-        <SectionCard icon="📄" title="Additional Information">
-          <View style={styles.jsonContainer}>
-            <Text style={styles.jsonText}>
-              {JSON.stringify(otherData, null, 2)}
-            </Text>
-          </View>
-        </SectionCard>
-      ) : null}
-
-      {hasMinimalData ? (
-        <SectionCard icon="🎉" title="Account Created Successfully!">
-          <Text style={styles.bodyText}>
-            Welcome to our platform! Your account has been created and you can
-            now access all features.
-          </Text>
-        </SectionCard>
+        <View style={styles.infoCard}>
+          {Object.entries(otherData).map(([key, value]) => (
+            <InfoRow
+              key={key}
+              label={key
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (s) => s.toUpperCase())}
+              value={String(value)}
+            />
+          ))}
+        </View>
       ) : null}
     </View>
   );

@@ -19,6 +19,9 @@ export function useSignUpSubmit() {
         password: data.password,
       };
       const response: ApiResponse = await signUpUser(signUpData);
+      if (__DEV__) {
+        console.log('Backend response:', JSON.stringify(response, null, 2));
+      }
 
       if (response.success && response.data) {
         navigation.navigate("MyAccount", { userData: response.data });

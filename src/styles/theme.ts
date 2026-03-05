@@ -80,6 +80,12 @@ export const theme = {
       dark: 'rgba(0, 0, 0, 0.2)',
     },
 
+    // Surface accents (list-item avatars, chevron circles, etc.)
+    surface: {
+      accent: '#F5F7FF',
+      avatarDark: '#41276D',
+    },
+
     // Pagination / UI
     pagination: {
       inactive: '#BBBBBB',

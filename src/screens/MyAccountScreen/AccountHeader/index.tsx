@@ -1,19 +1,16 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { Button } from "../../../components/ui";
 import { styles } from "./styles";
 import type { AccountHeaderProps } from "./types";
 
-export function AccountHeader({ onLogout }: AccountHeaderProps) {
+const DEFAULT_TITLE = "My Account";
+
+export function AccountHeader({ title = DEFAULT_TITLE }: AccountHeaderProps) {
   return (
     <View style={styles.header}>
-      <Text style={styles.title}>My Account</Text>
-      <Button
-        title="Logout"
-        onPress={onLogout}
-        variant="ghost"
-        size="sm"
-      />
+      <View style={styles.placeholder} />
+      <Text style={styles.title}>{title}</Text>
+      <View style={styles.placeholder} />
     </View>
   );
 }

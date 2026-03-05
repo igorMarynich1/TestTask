@@ -3,11 +3,9 @@ import { theme } from "../../../styles/theme";
 
 export const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: theme.spacing[6],
-    paddingTop: theme.spacing[4],
+    paddingHorizontal: theme.spacing[5],
+    paddingTop: theme.spacing[6],
+    paddingBottom: theme.spacing[8],
     gap: theme.spacing[3],
-  },
-  button: {
-    marginBottom: theme.spacing[2],
   },
 });

@@ -32,11 +32,13 @@ const SignUpScreen: React.FC = () => {
     [name, email, password, confirmPassword, acceptTerms],
   );
 
+  // Re-validate confirmPassword only when password changes (not on confirmPassword edits)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (confirmPassword) {
       trigger("confirmPassword");
     }
-  }, [password, confirmPassword, trigger]);
+  }, [password, trigger]);
 
   const onSubmit = useCallback(
     () => handleSubmit(onSignUp)(),

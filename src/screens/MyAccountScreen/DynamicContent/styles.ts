@@ -3,107 +3,111 @@ import { theme } from "../../../styles/theme";
 
 export const styles = StyleSheet.create({
   wrapper: {
-    paddingHorizontal: theme.spacing[6],
+    paddingHorizontal: theme.spacing[5],
+    gap: theme.spacing[5],
   },
-  section: {
-    marginBottom: theme.spacing[4],
+
+  infoCard: {
+    backgroundColor: theme.colors.background.primary,
+    borderRadius: theme.borderRadius.lg,
+    paddingHorizontal: theme.spacing[5],
+    ...theme.shadows.sm,
   },
-  sectionHeader: {
+  infoRow: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing[3],
+    paddingVertical: theme.spacing[4],
   },
-  sectionIcon: {
-    fontSize: theme.sizes.iconMd,
-    marginRight: theme.spacing[3],
+  infoLabel: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.text.secondary,
   },
-  sectionTitle: {
-    fontSize: theme.typography.fontSizes.xl,
+  infoValue: {
+    fontSize: theme.typography.fontSizes.sm,
     fontWeight: theme.typography.fontWeights.semibold,
     color: theme.colors.text.primary,
-  },
-  bodyText: {
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.text.primary,
-    lineHeight:
-      theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
-  },
-  featuresGrid: {
-    gap: theme.spacing[2],
-  },
-  featureItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-  },
-  featureBullet: {
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.primary[500],
-    fontWeight: theme.typography.fontWeights.bold,
-    marginRight: theme.spacing[2],
-    marginTop: theme.spacing[1] / 2,
-  },
-  featureText: {
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.text.primary,
-    lineHeight:
-      theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
-    flex: 1,
-  },
-  linksContainer: {
-    gap: theme.spacing[1],
-  },
-  linkItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: theme.spacing[3],
-    paddingHorizontal: theme.spacing[4],
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.borderRadius.base,
-    marginBottom: theme.spacing[2],
-  },
-  linkText: {
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.primary[600],
-    fontWeight: theme.typography.fontWeights.medium,
-  },
-  linkArrow: {
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.text.tertiary,
-  },
-  profileGrid: {
-    gap: theme.spacing[3],
-  },
-  profileItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: theme.spacing[2],
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.light,
-  },
-  profileLabel: {
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.text.secondary,
-    fontWeight: theme.typography.fontWeights.medium,
-  },
-  profileValue: {
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.text.primary,
-    flex: 1,
+    flexShrink: 1,
     textAlign: "right",
     marginLeft: theme.spacing[4],
   },
-  jsonContainer: {
-    backgroundColor: theme.colors.background.tertiary,
-    borderRadius: theme.borderRadius.base,
-    padding: theme.spacing[4],
+  infoValueHighlight: {
+    color: theme.colors.success,
   },
-  jsonText: {
+
+  listCard: {
+    backgroundColor: theme.colors.background.primary,
+    borderRadius: theme.borderRadius.lg,
+    paddingHorizontal: theme.spacing[5],
+    paddingTop: theme.spacing[4],
+    paddingBottom: theme.spacing[2],
+    ...theme.shadows.sm,
+  },
+  listHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: theme.spacing[3],
+  },
+  listCardContent: {},
+  listTitle: {
     fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.text.secondary,
+  },
+  listChevronCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: theme.colors.surface.accent,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  listChevron: {
+    width: 20,
+    fontSize: theme.typography.fontSizes.xl,
+    lineHeight: 20,
+    color: theme.colors.text.onSecondary,
+    textAlign: "center",
+  },
+  listChevronPlaceholder: {
+    width: 20,
+    height: 20,
+  },
+
+  listItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: theme.spacing[3],
+  },
+  listItemPressed: {
+    opacity: 0.7,
+  },
+  listAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.surface.accent,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: theme.spacing[3],
+  },
+  listAvatarText: {
+    color: theme.colors.primary.brand,
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+  },
+  listItemBody: {
+    flex: 1,
+  },
+  listItemTitle: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.semibold,
     color: theme.colors.text.primary,
-    fontFamily: "monospace",
-    lineHeight:
-      theme.typography.lineHeights.normal * theme.typography.fontSizes.sm,
+    marginBottom: theme.spacing[1] / 2,
+  },
+  listItemSub: {
+    fontSize: theme.typography.fontSizes.xs,
+    color: theme.colors.text.tertiary,
   },
 });

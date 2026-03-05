@@ -50,14 +50,6 @@ const MyAccountScreen: React.FC = () => {
     });
   }, []);
 
-  const handleEditProfile = useCallback(() => {
-    Alert.alert("Coming Soon", "Profile editing will be available soon!");
-  }, []);
-
-  const handleSettings = useCallback(() => {
-    Alert.alert("Coming Soon", "Settings will be available soon!");
-  }, []);
-
   return (
     <ScrollView
       style={styles.container}
@@ -71,16 +63,13 @@ const MyAccountScreen: React.FC = () => {
       }
       showsVerticalScrollIndicator={false}
     >
-      <AccountHeader onLogout={handleLogout} />
+      <AccountHeader />
       <UserInfoCard accountData={accountData} />
       <DynamicContent
         accountData={accountData}
         onLinkPress={handleLinkPress}
       />
-      <AccountActions
-        onEditProfile={handleEditProfile}
-        onSettings={handleSettings}
-      />
+      <AccountActions onLogout={handleLogout} />
     </ScrollView>
   );
 };
