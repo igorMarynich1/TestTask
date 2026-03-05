@@ -10,16 +10,7 @@ export const styles = StyleSheet.create({
     ...theme.pagination.marginVertical,
   },
   dot: {
+    width: theme.pagination.dotSize,
     borderRadius: theme.borderRadius.full,
-  },
-  dotInactive: {
-    width: theme.pagination.dotSize,
-    height: theme.pagination.dotSize,
-    backgroundColor: theme.colors.pagination.inactive,
-  },
-  dotActive: {
-    width: theme.pagination.dotSize,
-    height: theme.pagination.dotActiveHeight,
-    backgroundColor: theme.colors.pagination.active,
   },
 });

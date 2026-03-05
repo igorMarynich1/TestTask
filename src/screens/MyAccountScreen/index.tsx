@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, RefreshControl, Alert, Linking } from "react-native";
+import { ScrollView, RefreshControl, Alert } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import type { UserAccountData } from "../../types";
 import { theme } from "../../styles/theme";
@@ -37,18 +37,10 @@ const MyAccountScreen: React.FC = () => {
         text: "Logout",
         style: "destructive",
         onPress: () =>
-          navigation.reset({ index: 0, routes: [{ name: "Onboarding" }] }),
+          navigation.reset({ index: 0, routes: [{ name: "SignUp" }] }),
       },
     ]);
   }, [navigation]);
-
-  const handleLinkPress = useCallback((url: string) => {
-    Linking.openURL(url).catch((err) => {
-      if (__DEV__) {
-        console.error("Failed to open URL:", err);
-      }
-    });
-  }, []);
 
   return (
     <ScrollView
@@ -65,10 +57,7 @@ const MyAccountScreen: React.FC = () => {
     >
       <AccountHeader />
       <UserInfoCard accountData={accountData} />
-      <DynamicContent
-        accountData={accountData}
-        onLinkPress={handleLinkPress}
-      />
+      <DynamicContent accountData={accountData} />
       <AccountActions onLogout={handleLogout} />
     </ScrollView>
   );

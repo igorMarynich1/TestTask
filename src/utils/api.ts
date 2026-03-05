@@ -2,11 +2,14 @@ import axios from 'axios';
 import { SignUpFormData, ApiResponse, UserAccountData } from '../types';
 
 const API_BASE_URL = 'https://artjoms-spole.fly.dev';
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1000;
 
-// Create axios instance with default config
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000, // 10 seconds timeout
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -45,40 +48,39 @@ apiClient.interceptors.response.use(
 const DEMO_MODE_ENABLED = true;
 const useDemoMode = __DEV__ && DEMO_MODE_ENABLED;
 
-export const signUpUser = async (userData: SignUpFormData): Promise<ApiResponse<UserAccountData>> => {
+export const signUpUser = async (
+  userData: SignUpFormData,
+  retries = MAX_RETRIES,
+): Promise<ApiResponse<UserAccountData>> => {
   if (useDemoMode) {
     console.log('Demo Mode: Simulating successful signup');
-    
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
+    await delay(1500);
+
     const demoData: UserAccountData = {
       id: '12345',
       name: userData.name,
       email: userData.email,
-      message: 'Welcome to our platform!',
-      instructions: 'Your account has been successfully created. You can now access all features of the application.',
-      features: [
-        'Access to premium content',
-        'Personalized recommendations',
-        'Priority customer support',
-        'Advanced analytics dashboard',
-        'Mobile app synchronization'
-      ],
-      links: {
-        'Help Center': 'https://example.com/help',
-        'Contact Support': 'https://example.com/support',
-        'Privacy Policy': 'https://example.com/privacy',
-        'Terms of Service': 'https://example.com/terms'
-      },
       profile: {
-        'Account Type': 'Premium',
-        'Member Since': new Date().toLocaleDateString(),
-        'Status': 'Active',
-        'Verification': 'Verified'
+        'Type of account': 'Savings',
+        'Account No': '1234567890',
+        'Available Balance': 'N12,000.00',
+        'Date added': '15/05/20, 10:03 AM'
       },
-      createdAt: new Date().toISOString(),
-      lastLogin: new Date().toISOString()
+      recentTransactions: [
+        'John Ogaga · Zenith Bank 12:03 AM · +N20,983',
+        'The Place Restaurant · GT-Bank 12:03 AM · -N983',
+        'Transfer to Philip · GT-Bank 12:03 AM · -N298',
+        'Habib Yogurt · GT-Bank 12:03 AM · -N4,115',
+        'Sandra Williams · Access Bank 11:45 AM · +N8,500',
+        'Netflix Subscription · UBA 11:30 AM · -N4,900',
+        'Uber Ride · Wema Bank 10:58 AM · -N2,350',
+        'Michael Adeyemi · First Bank 10:20 AM · +N15,000',
+        'Shoprite · Stanbic IBTC 9:47 AM · -N12,680',
+        'Grace Okafor · Kuda Bank 9:15 AM · +N3,200',
+        'MTN Airtime · GTBank 8:50 AM · -N1,000',
+        'David Obi · Zenith Bank 8:30 AM · -N6,750',
+      ],
     };
 
     return {
@@ -121,6 +123,10 @@ export const signUpUser = async (userData: SignUpFormData): Promise<ApiResponse<
           message: 'An account with this email already exists.',
         };
       } else if (status >= 500) {
+        if (retries > 0) {
+          await delay(RETRY_DELAY_MS);
+          return signUpUser(userData, retries - 1);
+        }
         return {
           success: false,
           message: 'Server error. Please try again later.',
@@ -132,6 +138,10 @@ export const signUpUser = async (userData: SignUpFormData): Promise<ApiResponse<
         };
       }
     } else if (axios.isAxiosError(error) && error.request) {
+      if (retries > 0) {
+        await delay(RETRY_DELAY_MS);
+        return signUpUser(userData, retries - 1);
+      }
       return {
         success: false,
         message: 'Network error. Please check your internet connection.',

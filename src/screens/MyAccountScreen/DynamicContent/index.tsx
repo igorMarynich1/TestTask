@@ -5,8 +5,6 @@ import { theme } from "../../../styles/theme";
 import { styles } from "./styles";
 import type { DynamicContentProps } from "./types";
 
-type ListSection = "features" | "links";
-
 const SLIDE_OFFSET = 12;
 
 const KNOWN_KEYS: (keyof UserAccountData)[] = [
@@ -15,7 +13,7 @@ const KNOWN_KEYS: (keyof UserAccountData)[] = [
   "id",
   "message",
   "instructions",
-  "features",
+  "recentTransactions",
   "links",
   "profile",
   "createdAt",
@@ -25,52 +23,71 @@ const KNOWN_KEYS: (keyof UserAccountData)[] = [
 function InfoRow({
   label,
   value,
-  highlight,
+  valueColor,
 }: {
   label: string;
   value: string;
-  highlight?: boolean;
+  valueColor?: string;
 }) {
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={[styles.infoValue, highlight && styles.infoValueHighlight]}>
+      <Text style={[styles.infoValue, valueColor ? { color: valueColor } : undefined]}>
         {value}
       </Text>
     </View>
   );
 }
 
+function formatUnknownValue(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "-";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
+const PAGE_SIZE = 4;
+
 export function DynamicContent({
   accountData,
-  onLinkPress,
 }: DynamicContentProps) {
-  const hasFeatures =
-    accountData.features && accountData.features.length > 0;
-  const hasLinks =
-    accountData.links && Object.keys(accountData.links).length > 0;
-  const showListCard = hasFeatures || hasLinks;
-  const canSwitch = hasFeatures && hasLinks;
+  const hasTransactions =
+    accountData.recentTransactions && accountData.recentTransactions.length > 0;
 
-  const [activeSection, setActiveSection] = useState<ListSection>("features");
+  const totalPages = hasTransactions
+    ? Math.ceil(accountData.recentTransactions!.length / PAGE_SIZE)
+    : 0;
+  const canCycle = totalPages > 1;
 
-  const effectiveSection: ListSection = canSwitch
-    ? activeSection
-    : hasFeatures
-      ? "features"
-      : "links";
+  const [page, setPage] = useState(0);
 
-  const cycleSection = useCallback(() => {
-    if (!canSwitch) return;
-    setActiveSection((prev) => (prev === "features" ? "links" : "features"));
-  }, [canSwitch]);
+  const cyclePage = useCallback(() => {
+    if (!canCycle) return;
+    setPage((prev) => (prev + 1) % totalPages);
+  }, [canCycle, totalPages]);
+
+  const visibleTransactions = useMemo(() => {
+    if (!hasTransactions) return [];
+    const start = page * PAGE_SIZE;
+    return accountData.recentTransactions!.slice(start, start + PAGE_SIZE);
+  }, [page, hasTransactions, accountData.recentTransactions]);
 
   const contentOpacity = useRef(new Animated.Value(1)).current;
   const contentTranslateY = useRef(new Animated.Value(0)).current;
   const isFirstMount = useRef(true);
 
   useEffect(() => {
-    if (!showListCard) return;
+    if (!hasTransactions) return;
     if (isFirstMount.current) {
       isFirstMount.current = false;
       return;
@@ -89,21 +106,22 @@ export function DynamicContent({
         useNativeDriver: true,
       }),
     ]).start();
-  }, [effectiveSection, showListCard, contentOpacity, contentTranslateY]);
+  }, [page, hasTransactions, contentOpacity, contentTranslateY]);
 
   const profileRows = useMemo(() => {
-    const rows: { label: string; value: string; highlight?: boolean }[] = [];
+    const rows: { label: string; value: string; valueColor?: string }[] = [];
 
     if (accountData.profile) {
-      const entries = Object.entries(accountData.profile).sort(
-        ([a], [b]) => (a === "Member Since" ? 1 : b === "Member Since" ? -1 : 0)
-      );
-      for (const [key, value] of entries) {
-        rows.push({
-          label: key,
-          value: String(value),
-          highlight: value === "Active" || value === "Verified",
-        });
+      for (const [key, value] of Object.entries(accountData.profile)) {
+        let valueColor: string | undefined;
+
+        if (key === "Available Balance") {
+          const numericStr = String(value).replace(/[^0-9.-]/g, "");
+          const num = parseFloat(numericStr);
+          valueColor = num < 0 ? theme.colors.error : theme.colors.success;
+        }
+
+        rows.push({ label: key, value: String(value), valueColor });
       }
     }
 
@@ -129,25 +147,21 @@ export function DynamicContent({
               key={row.label}
               label={row.label}
               value={row.value}
-              highlight={row.highlight}
+              valueColor={row.valueColor}
             />
           ))}
         </View>
       ) : null}
 
-      {showListCard ? (
+      {hasTransactions ? (
         <View style={styles.listCard}>
           <Pressable
-            onPress={cycleSection}
+            onPress={cyclePage}
             style={styles.listHeader}
-            disabled={!canSwitch}
+            disabled={!canCycle}
           >
-            <Text style={styles.listTitle}>
-              {effectiveSection === "features"
-                ? "Available Features"
-                : "Quick Links"}
-            </Text>
-            {canSwitch ? (
+            <Text style={styles.listTitle}>Recent Transactions</Text>
+            {canCycle ? (
               <View style={styles.listChevronCircle}>
                 <Text style={styles.listChevron}>›</Text>
               </View>
@@ -164,44 +178,39 @@ export function DynamicContent({
               },
             ]}
           >
-            {effectiveSection === "features" && hasFeatures ? (
-              accountData.features!.map((feature, index) => (
+            {visibleTransactions.map((transaction, index) => {
+              const parts = transaction.split(" · ");
+              const title = parts[0];
+              const subtitle = parts.length > 2 ? parts[1] : undefined;
+              const amount = parts.length > 2 ? parts[2] : parts[1];
+              const isPositive = amount?.startsWith("+");
+              const isNegative = amount?.startsWith("-");
+
+              return (
                 <View key={index} style={styles.listItem}>
                   <View style={styles.listAvatar}>
                     <Text style={styles.listAvatarText}>
-                      {feature.charAt(0).toUpperCase()}
+                      {title.charAt(0).toUpperCase()}
                     </Text>
                   </View>
                   <View style={styles.listItemBody}>
-                    <Text style={styles.listItemTitle}>{feature}</Text>
+                    <Text style={styles.listItemTitle}>{title}</Text>
+                    {subtitle ? (
+                      <Text style={styles.listItemSub}>{subtitle}</Text>
+                    ) : null}
                   </View>
+                  {amount ? (
+                    <Text style={[
+                      styles.listItemAmount,
+                      isPositive && styles.listItemAmountPositive,
+                      isNegative && styles.listItemAmountNegative,
+                    ]}>
+                      {amount}
+                    </Text>
+                  ) : null}
                 </View>
-              ))
-            ) : null}
-            {effectiveSection === "links" && hasLinks
-              ? Object.entries(accountData.links!).map(([label, url]) => (
-                  <Pressable
-                    key={label}
-                    style={({ pressed }) => [
-                      styles.listItem,
-                      pressed && styles.listItemPressed,
-                    ]}
-                    onPress={() => onLinkPress(url)}
-                  >
-                    <View style={styles.listAvatar}>
-                      <Text style={styles.listAvatarText}>
-                        {label.charAt(0).toUpperCase()}
-                      </Text>
-                    </View>
-                    <View style={styles.listItemBody}>
-                      <Text style={styles.listItemTitle}>{label}</Text>
-                      <Text style={styles.listItemSub} numberOfLines={1}>
-                        {url}
-                      </Text>
-                    </View>
-                  </Pressable>
-                ))
-              : null}
+              );
+            })}
           </Animated.View>
         </View>
       ) : null}
@@ -214,7 +223,7 @@ export function DynamicContent({
               label={key
                 .replace(/([A-Z])/g, " $1")
                 .replace(/^./, (s) => s.toUpperCase())}
-              value={String(value)}
+              value={formatUnknownValue(value)}
             />
           ))}
         </View>

@@ -31,10 +31,6 @@ export const styles = StyleSheet.create({
     textAlign: "right",
     marginLeft: theme.spacing[4],
   },
-  infoValueHighlight: {
-    color: theme.colors.success,
-  },
-
   listCard: {
     backgroundColor: theme.colors.background.primary,
     borderRadius: theme.borderRadius.lg,
@@ -109,5 +105,17 @@ export const styles = StyleSheet.create({
   listItemSub: {
     fontSize: theme.typography.fontSizes.xs,
     color: theme.colors.text.tertiary,
+  },
+  listItemAmount: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text.primary,
+    marginLeft: theme.spacing[3],
+  },
+  listItemAmountPositive: {
+    color: theme.colors.success,
+  },
+  listItemAmountNegative: {
+    color: theme.colors.error,
   },
 });
