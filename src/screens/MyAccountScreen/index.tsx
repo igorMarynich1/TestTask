@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, RefreshControl, Alert } from "react-native";
+import { ScrollView, RefreshControl, Alert, Linking } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import type { UserAccountData } from "../../types";
 import { theme } from "../../styles/theme";
@@ -30,6 +30,10 @@ const MyAccountScreen: React.FC = () => {
     setTimeout(() => setIsRefreshing(false), 1000);
   }, []);
 
+  const handleLinkPress = useCallback((url: string) => {
+    Linking.openURL(url).catch(() => {});
+  }, []);
+
   const handleLogout = useCallback(() => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
@@ -57,7 +61,7 @@ const MyAccountScreen: React.FC = () => {
     >
       <AccountHeader />
       <UserInfoCard accountData={accountData} />
-      <DynamicContent accountData={accountData} />
+      <DynamicContent accountData={accountData} onLinkPress={handleLinkPress} />
       <AccountActions onLogout={handleLogout} />
     </ScrollView>
   );

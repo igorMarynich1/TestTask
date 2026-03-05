@@ -46,7 +46,8 @@ apiClient.interceptors.response.use(
 );
 
 const DEMO_MODE_ENABLED = true;
-const useDemoMode = __DEV__ && DEMO_MODE_ENABLED;
+const useDemoMode =
+  __DEV__ && DEMO_MODE_ENABLED && process.env.NODE_ENV !== 'test';
 
 export const signUpUser = async (
   userData: SignUpFormData,

@@ -12,6 +12,7 @@ export interface UserAccountData {
   message?: string;
   instructions?: string;
   recentTransactions?: string[];
+  features?: string[];
   links?: Record<string, string>;
   profile?: Record<string, string>;
   createdAt?: string;

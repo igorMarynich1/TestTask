@@ -31,6 +31,9 @@ export const styles = StyleSheet.create({
     textAlign: "right",
     marginLeft: theme.spacing[4],
   },
+  infoValueHighlight: {
+    color: theme.colors.success,
+  },
   listCard: {
     backgroundColor: theme.colors.background.primary,
     borderRadius: theme.borderRadius.lg,
