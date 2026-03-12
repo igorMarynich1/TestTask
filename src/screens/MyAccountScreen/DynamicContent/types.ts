@@ -1,6 +1,5 @@
-import type { UserAccountData } from "../../../types";
+import type { AccountData } from "../../../types";
 
 export interface DynamicContentProps {
-  accountData: UserAccountData;
-  onLinkPress: (url: string) => void;
+  accountData?: AccountData;
 }

@@ -20,11 +20,14 @@ export function useSignUpSubmit() {
       };
       const response: ApiResponse = await signUpUser(signUpData);
       if (__DEV__) {
-        console.log('Backend response:', JSON.stringify(response, null, 2));
+        console.log("Backend response:", JSON.stringify(response, null, 2));
       }
 
       if (response.success && response.data) {
-        navigation.navigate("MyAccount", { userData: response.data });
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "MyAccount", params: { userData: response.data } }],
+        });
       } else {
         Alert.alert(
           "Sign Up Failed",

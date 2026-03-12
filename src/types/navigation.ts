@@ -9,3 +9,4 @@ export type RootStackParamList = {
   SignUp: undefined;
   MyAccount: { userData: UserAccountData };
 };
+

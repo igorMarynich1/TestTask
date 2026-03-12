@@ -22,6 +22,7 @@
     "@react-navigation/native": "^7.1.32",
     "@react-navigation/stack": "^7.8.3",
     "axios": "^1.13.6",
+    "base-64": "^1.0.0",
     "expo": "~54.0.0",
     "expo-constants": "~18.0.13",
     "expo-status-bar": "~3.0.9",
@@ -39,6 +40,7 @@
   "devDependencies": {
     "@eslint/js": "^9.15.0",
     "@testing-library/react-native": "^13.0.0",
+    "@types/base-64": "^1.0.2",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.1.10",
     "@types/react-native": "^0.72.8",

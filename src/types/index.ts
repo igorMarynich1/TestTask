@@ -4,19 +4,39 @@ export interface SignUpFormData {
   password: string;
 }
 
-/** Account data returned from signup / account API. */
+/** Response from POST /signup */
+export interface SignUpResponse {
+  message: string;
+  nextStep: string;
+  basicAuthCredentials: {
+    username: string;
+    password: string;
+  };
+}
+
+/** Transaction item from GET /interview/account */
+export interface Transaction {
+  name: string;
+  bank: string;
+  time: string;
+  amount: number;
+}
+
+/** Account data from GET /interview/account */
+export interface AccountData {
+  accountType: string;
+  accountNumber: string;
+  availableBalance: number;
+  currency: string;
+  dateAdded: string;
+  transactions: Transaction[];
+}
+
+/** Combined user data passed to MyAccount screen */
 export interface UserAccountData {
-  id?: string;
-  name?: string;
-  email?: string;
-  message?: string;
-  instructions?: string;
-  recentTransactions?: string[];
-  features?: string[];
-  links?: Record<string, string>;
-  profile?: Record<string, string>;
-  createdAt?: string;
-  lastLogin?: string;
+  name: string;
+  email: string;
+  account: AccountData;
 }
 
 export interface ApiResponse<T = UserAccountData> {

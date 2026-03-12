@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, RefreshControl, Alert, Linking } from "react-native";
+import React, { useCallback, useState } from "react";
+import { ScrollView, RefreshControl, Alert } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import type { UserAccountData } from "../../types";
+import { fetchAccountData } from "../../utils/api";
 import { theme } from "../../styles/theme";
 import { AccountHeader } from "./AccountHeader";
 import { UserInfoCard } from "./UserInfoCard";
@@ -13,25 +13,32 @@ import type {
   MyAccountScreenNavigationProp,
 } from "./types";
 
+const REFRESH_AUTH = { username: "user", password: "civitta" };
+
 const MyAccountScreen: React.FC = () => {
   const route = useRoute<MyAccountScreenRouteProp>();
   const navigation = useNavigation<MyAccountScreenNavigationProp>();
-  const [accountData, setAccountData] = useState<UserAccountData>({});
+  const userData = route.params?.userData;
+
+  const [accountData, setAccountData] = useState(userData?.account);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    if (route.params?.userData) {
-      setAccountData(route.params.userData);
-    }
-  }, [route.params]);
-
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1000);
-  }, []);
-
-  const handleLinkPress = useCallback((url: string) => {
-    Linking.openURL(url).catch(() => {});
+    try {
+      const freshData = await fetchAccountData(
+        REFRESH_AUTH.username,
+        REFRESH_AUTH.password,
+      );
+      setAccountData(freshData);
+    } catch (error) {
+      if (__DEV__) {
+        console.error("Refresh error:", error);
+      }
+      Alert.alert("Refresh Failed", "Could not refresh account data.");
+    } finally {
+      setIsRefreshing(false);
+    }
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -60,8 +67,8 @@ const MyAccountScreen: React.FC = () => {
       showsVerticalScrollIndicator={false}
     >
       <AccountHeader />
-      <UserInfoCard accountData={accountData} />
-      <DynamicContent accountData={accountData} onLinkPress={handleLinkPress} />
+      <UserInfoCard name={userData?.name} />
+      <DynamicContent accountData={accountData} />
       <AccountActions onLogout={handleLogout} />
     </ScrollView>
   );
