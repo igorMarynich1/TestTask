@@ -118,6 +118,7 @@ describe('signUpUser', () => {
       name: mockUserData.name,
       email: mockUserData.email,
       account: mockAccountData,
+      credentials: mockSignUpResponse.basicAuthCredentials,
     });
     expect(result.message).toBe('User signup successful!');
   });

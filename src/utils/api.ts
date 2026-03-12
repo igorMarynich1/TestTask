@@ -96,12 +96,17 @@ export const signUpUser = async (
       '/signup',
       userData,
     );
-    const { basicAuthCredentials } = signUpResponse.data;
+    const responseData = signUpResponse.data;
+    const creds = responseData?.basicAuthCredentials;
 
-    const accountData = await fetchAccountData(
-      basicAuthCredentials.username,
-      basicAuthCredentials.password,
-    );
+    if (!creds?.username || !creds?.password) {
+      return {
+        success: false,
+        message: 'Invalid response from server. Please try again.',
+      };
+    }
+
+    const accountData = await fetchAccountData(creds.username, creds.password);
 
     return {
       success: true,
@@ -109,8 +114,9 @@ export const signUpUser = async (
         name: userData.name,
         email: userData.email,
         account: accountData,
+        credentials: creds,
       },
-      message: signUpResponse.data.message,
+      message: responseData?.message,
     };
   } catch (error: unknown) {
     if (__DEV__) {

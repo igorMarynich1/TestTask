@@ -18,17 +18,19 @@ function AnimatedDot({ isActive }: { isActive: boolean }) {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(height, {
+      Animated.spring(height, {
         toValue: isActive
           ? theme.pagination.dotActiveHeight
           : theme.pagination.dotSize,
-        duration: theme.animation.normal,
         useNativeDriver: false,
+        tension: 60,
+        friction: 8,
       }),
-      Animated.timing(colorProgress, {
+      Animated.spring(colorProgress, {
         toValue: isActive ? 1 : 0,
-        duration: theme.animation.normal,
         useNativeDriver: false,
+        tension: 60,
+        friction: 8,
       }),
     ]).start();
   }, [isActive, height, colorProgress]);

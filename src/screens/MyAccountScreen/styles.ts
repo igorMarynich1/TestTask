@@ -7,6 +7,6 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.secondary,
   },
   contentContainer: {
-    paddingBottom: theme.spacing[10],
+    gap: theme.spacing[1],
   },
 });

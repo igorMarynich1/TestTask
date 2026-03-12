@@ -32,11 +32,17 @@ export interface AccountData {
   transactions: Transaction[];
 }
 
+export interface AuthCredentials {
+  username: string;
+  password: string;
+}
+
 /** Combined user data passed to MyAccount screen */
 export interface UserAccountData {
   name: string;
   email: string;
   account: AccountData;
+  credentials: AuthCredentials;
 }
 
 export interface ApiResponse<T = UserAccountData> {

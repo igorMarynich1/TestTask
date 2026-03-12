@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema, type SignUpSchema } from "../../utils/validation";
@@ -9,6 +10,7 @@ import { SignUpForm } from "./SignUpForm";
 import { styles } from "./styles";
 
 const SignUpScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const { onSignUp, openLink, isLoading } = useSignUpSubmit();
 
   const { control, handleSubmit, watch, trigger } = useForm<SignUpSchema>({
@@ -36,7 +38,7 @@ const SignUpScreen: React.FC = () => {
     if (confirmPassword) {
       trigger("confirmPassword");
     }
-  }, [password, trigger]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [password, confirmPassword, trigger]);
 
   const onSubmit = useCallback(
     () => handleSubmit(onSignUp)(),
@@ -49,7 +51,10 @@ const SignUpScreen: React.FC = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 24 },
+        ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >

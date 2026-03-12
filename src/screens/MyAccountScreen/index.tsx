@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, RefreshControl, Alert } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { fetchAccountData } from "../../utils/api";
 import { theme } from "../../styles/theme";
@@ -13,22 +14,33 @@ import type {
   MyAccountScreenNavigationProp,
 } from "./types";
 
-const REFRESH_AUTH = { username: "user", password: "civitta" };
-
 const MyAccountScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const route = useRoute<MyAccountScreenRouteProp>();
   const navigation = useNavigation<MyAccountScreenNavigationProp>();
   const userData = route.params?.userData;
 
   const [accountData, setAccountData] = useState(userData?.account);
+
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  useEffect(() => {
+    if (!userData) {
+      navigation.reset({ index: 0, routes: [{ name: "SignUp" }] });
+    }
+  }, [userData, navigation]);
+
+  if (!userData) {
+    return null;
+  }
+
   const handleRefresh = useCallback(async () => {
+    if (!userData?.credentials) return;
     setIsRefreshing(true);
     try {
       const freshData = await fetchAccountData(
-        REFRESH_AUTH.username,
-        REFRESH_AUTH.password,
+        userData.credentials.username,
+        userData.credentials.password,
       );
       setAccountData(freshData);
     } catch (error) {
@@ -39,7 +51,7 @@ const MyAccountScreen: React.FC = () => {
     } finally {
       setIsRefreshing(false);
     }
-  }, []);
+  }, [userData?.credentials]);
 
   const handleLogout = useCallback(() => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -55,8 +67,11 @@ const MyAccountScreen: React.FC = () => {
 
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+      style={[styles.container, { paddingTop: insets.top }]}
+      contentContainerStyle={[
+        styles.contentContainer,
+        { paddingBottom: insets.bottom + 16 },
+      ]}
       refreshControl={
         <RefreshControl
           refreshing={isRefreshing}

@@ -1,10 +1,16 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Animated, PanResponder } from "react-native";
+import React, { useCallback, useRef, useState } from "react";
+import {
+  View,
+  FlatList,
+  Dimensions,
+  type ViewToken,
+  type ListRenderItemInfo,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { markOnboardingSeen } from "../../utils/storage";
-import { OnboardingScreenNavigationProp } from "./types";
-import { getContainerStyle } from "./styles";
+import type { OnboardingScreenNavigationProp } from "./types";
+import { styles } from "./styles";
 import { onboardingData } from "./data";
 import { SlideMedia } from "../../components/ui";
 import {
@@ -13,22 +19,26 @@ import {
   SlideContent,
   SlideActions,
 } from "../../components/Onboarding";
+import type { OnboardingSlide } from "../../types";
 
-const SWIPE_THRESHOLD = 50;
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const ONBOARDING_IMAGE = require("../../assets/img/Onboarding.png");
+
+const getItemLayout = (_: unknown, index: number) => ({
+  length: SCREEN_WIDTH,
+  offset: SCREEN_WIDTH * index,
+  index,
+});
+
+const keyExtractor = (_: OnboardingSlide, index: number) => index.toString();
 
 const OnboardingScreen: React.FC = () => {
   const navigation = useNavigation<OnboardingScreenNavigationProp>();
   const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
+  const flatListRef = useRef<FlatList<OnboardingSlide>>(null);
 
   const completeOnboarding = useCallback(() => {
     markOnboardingSeen().catch(() => {});
@@ -37,59 +47,65 @@ const OnboardingScreen: React.FC = () => {
 
   const goToNext = useCallback(() => {
     if (currentIndex < onboardingData.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
+      flatListRef.current?.scrollToIndex({
+        index: currentIndex + 1,
+        animated: true,
+      });
     } else {
       completeOnboarding();
     }
   }, [currentIndex, completeOnboarding]);
 
-  const goToPrev = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-    }
-  }, [currentIndex]);
-
-  const swipeLeftRef = useRef(goToNext);
-  const swipeRightRef = useRef(goToPrev);
-  swipeLeftRef.current = goToNext;
-  swipeRightRef.current = goToPrev;
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dx) > 10,
-      onPanResponderRelease: (_, gs) => {
-        if (gs.dx < -SWIPE_THRESHOLD) {
-          swipeLeftRef.current();
-        } else if (gs.dx > SWIPE_THRESHOLD) {
-          swipeRightRef.current();
-        }
-      },
-    }),
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken<OnboardingSlide>[] }) => {
+      if (viewableItems.length > 0 && viewableItems[0].index != null) {
+        setCurrentIndex(viewableItems[0].index);
+      }
+    },
   ).current;
 
+  const viewabilityConfig = useRef({
+    viewAreaCoveragePercentThreshold: 50,
+  }).current;
+
+  const renderItem = useCallback(
+    ({ item, index }: ListRenderItemInfo<OnboardingSlide>) => (
+      <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
+        <SlideMedia image={ONBOARDING_IMAGE} />
+        <BottomCard insets={insets}>
+          <SlideContent
+            title={item.title}
+            description={item.description}
+            dotsCount={onboardingData.length}
+            activeIndex={currentIndex}
+          />
+          <SlideActions
+            isLastSlide={index === onboardingData.length - 1}
+            onPress={goToNext}
+          />
+        </BottomCard>
+      </View>
+    ),
+    [insets, currentIndex, goToNext],
+  );
+
   return (
-    <Animated.View
-      style={getContainerStyle(fadeAnim)}
-      {...panResponder.panHandlers}
-    >
+    <View style={styles.container}>
       <SkipHeader insets={insets} onPress={completeOnboarding} />
-
-      {/* eslint-disable-next-line @typescript-eslint/no-require-imports -- static assets in RN use require() */}
-      <SlideMedia image={require("../../assets/img/Onboarding.png")} />
-
-      <BottomCard insets={insets}>
-        <SlideContent
-          title={onboardingData[currentIndex].title}
-          description={onboardingData[currentIndex].description}
-          dotsCount={onboardingData.length}
-          activeIndex={currentIndex}
-        />
-        <SlideActions
-          isLastSlide={currentIndex === onboardingData.length - 1}
-          onPress={goToNext}
-        />
-      </BottomCard>
-    </Animated.View>
+      <FlatList
+        ref={flatListRef}
+        data={onboardingData}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        bounces={false}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
+        getItemLayout={getItemLayout}
+      />
+    </View>
   );
 };
 

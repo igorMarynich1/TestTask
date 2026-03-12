@@ -74,11 +74,8 @@ function TransactionItem({
 }
 
 export function DynamicContent({ accountData }: DynamicContentProps) {
-  if (!accountData) {
-    return null;
-  }
-
   const profileRows = useMemo(() => {
+    if (!accountData) return [];
     const balanceStr = formatCurrency(
       accountData.availableBalance,
       accountData.currency,
@@ -100,10 +97,10 @@ export function DynamicContent({ accountData }: DynamicContentProps) {
     ];
   }, [accountData]);
 
-  const hasTransactions =
-    accountData.transactions && accountData.transactions.length > 0;
+  const transactions = accountData?.transactions;
+  const hasTransactions = Boolean(transactions && transactions.length > 0);
   const totalPages = hasTransactions
-    ? Math.ceil(accountData.transactions.length / PAGE_SIZE)
+    ? Math.ceil(transactions!.length / PAGE_SIZE)
     : 0;
   const canCycle = totalPages > 1;
 
@@ -115,10 +112,10 @@ export function DynamicContent({ accountData }: DynamicContentProps) {
   }, [canCycle, totalPages]);
 
   const visibleTransactions = useMemo(() => {
-    if (!hasTransactions) return [];
+    if (!transactions || transactions.length === 0) return [];
     const start = page * PAGE_SIZE;
-    return accountData.transactions.slice(start, start + PAGE_SIZE);
-  }, [page, hasTransactions, accountData.transactions]);
+    return transactions.slice(start, start + PAGE_SIZE);
+  }, [page, transactions]);
 
   const contentOpacity = useRef(new Animated.Value(1)).current;
   const contentTranslateY = useRef(new Animated.Value(0)).current;
@@ -145,6 +142,10 @@ export function DynamicContent({ accountData }: DynamicContentProps) {
       }),
     ]).start();
   }, [page, hasTransactions, contentOpacity, contentTranslateY]);
+
+  if (!accountData) {
+    return null;
+  }
 
   return (
     <View style={styles.wrapper}>
