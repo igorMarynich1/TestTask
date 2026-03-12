@@ -30,17 +30,15 @@ const MyAccountScreen: React.FC = () => {
     }
   }, [userData, navigation]);
 
-  if (!userData) {
-    return null;
-  }
+  const credentials = userData?.credentials;
 
   const handleRefresh = useCallback(async () => {
-    if (!userData?.credentials) return;
+    if (!credentials) return;
     setIsRefreshing(true);
     try {
       const freshData = await fetchAccountData(
-        userData.credentials.username,
-        userData.credentials.password,
+        credentials.username,
+        credentials.password,
       );
       setAccountData(freshData);
     } catch (error) {
@@ -51,7 +49,7 @@ const MyAccountScreen: React.FC = () => {
     } finally {
       setIsRefreshing(false);
     }
-  }, [userData?.credentials]);
+  }, [credentials]);
 
   const handleLogout = useCallback(() => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -64,6 +62,10 @@ const MyAccountScreen: React.FC = () => {
       },
     ]);
   }, [navigation]);
+
+  if (!userData) {
+    return null;
+  }
 
   return (
     <ScrollView

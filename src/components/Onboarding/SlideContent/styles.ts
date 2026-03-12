@@ -8,7 +8,6 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing[4],
   },
   title: {
-    fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSizes["2xl"],
     fontWeight: theme.typography.fontWeights.bold,
     lineHeight: theme.typography.fontSizes["2xl"],
@@ -18,7 +17,6 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing[4],
   },
   description: {
-    fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSizes.sm,
     fontWeight: theme.typography.fontWeights.medium,
     lineHeight:

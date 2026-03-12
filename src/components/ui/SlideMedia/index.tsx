@@ -14,7 +14,9 @@ export const SlideMedia: React.FC<SlideMediaProps> = ({
     {image != null ? (
       <Image source={image} style={styles.heroImage} resizeMode="contain" />
     ) : icon ? (
-      <Text style={styles.heroIcon}>{icon}</Text>
+      <View style={styles.iconCircle}>
+        <Text style={styles.heroIcon}>{icon}</Text>
+      </View>
     ) : null}
   </View>
 );

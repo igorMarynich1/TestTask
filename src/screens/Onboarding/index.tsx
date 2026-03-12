@@ -23,9 +23,6 @@ import type { OnboardingSlide } from "../../types";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const ONBOARDING_IMAGE = require("../../assets/img/Onboarding.png");
-
 const getItemLayout = (_: unknown, index: number) => ({
   length: SCREEN_WIDTH,
   offset: SCREEN_WIDTH * index,
@@ -71,7 +68,7 @@ const OnboardingScreen: React.FC = () => {
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<OnboardingSlide>) => (
       <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
-        <SlideMedia image={ONBOARDING_IMAGE} />
+        <SlideMedia icon={item.icon} />
         <BottomCard insets={insets}>
           <SlideContent
             title={item.title}

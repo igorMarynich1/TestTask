@@ -7,7 +7,6 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing[8],
   },
   title: {
-    fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSizes.h1,
     fontWeight: theme.typography.fontWeights.bold,
     lineHeight: 40,
@@ -15,7 +14,6 @@ export const styles = StyleSheet.create({
     marginBottom: theme.spacing[2],
   },
   subtitle: {
-    fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSizes.base,
     fontWeight: theme.typography.fontWeights.medium,
     lineHeight: 24,

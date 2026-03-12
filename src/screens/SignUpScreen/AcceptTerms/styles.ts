@@ -14,7 +14,6 @@ export const styles = StyleSheet.create({
     width: "100%",
   },
   termsLabel: {
-    fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     fontWeight: theme.typography.fontWeights.medium,
     lineHeight: 22,

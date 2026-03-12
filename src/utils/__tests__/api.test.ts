@@ -21,10 +21,6 @@ jest.mock('axios', () => {
   };
 });
 
-jest.mock('base-64', () => ({
-  encode: (str: string) => Buffer.from(str).toString('base64'),
-}));
-
 import axios from 'axios';
 import { signUpUser, fetchAccountData } from '../api';
 

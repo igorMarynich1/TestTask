@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: theme.spacing[5],
-    paddingTop: theme.layout.screenPaddingTop,
+    paddingTop: theme.spacing[4],
     paddingBottom: theme.spacing[4],
     backgroundColor: theme.colors.background.secondary,
   },

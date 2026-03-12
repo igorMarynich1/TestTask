@@ -55,4 +55,5 @@ export interface ApiResponse<T = UserAccountData> {
 export interface OnboardingSlide {
   title: string;
   description: string;
+  icon: string;
 }

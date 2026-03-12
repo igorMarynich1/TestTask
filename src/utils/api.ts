@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { encode as btoa } from 'base-64';
 import {
   SignUpFormData,
   SignUpResponse,
